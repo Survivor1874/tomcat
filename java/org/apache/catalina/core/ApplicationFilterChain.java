@@ -153,14 +153,15 @@ public final class ApplicationFilterChain implements FilterChain {
                 );
             } catch( PrivilegedActionException pe) {
                 Exception e = pe.getException();
-                if (e instanceof ServletException)
+                if (e instanceof ServletException) {
                     throw (ServletException) e;
-                else if (e instanceof IOException)
+                } else if (e instanceof IOException) {
                     throw (IOException) e;
-                else if (e instanceof RuntimeException)
+                } else if (e instanceof RuntimeException) {
                     throw (RuntimeException) e;
-                else
+                } else {
                     throw new ServletException(e.getMessage(), e);
+                }
             }
         } else {
             internalDoFilter(request,response);

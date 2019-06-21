@@ -156,8 +156,9 @@ public abstract class LifecycleBase implements Lifecycle {
     @Override
     public final synchronized void start() throws LifecycleException {
 
-        if (LifecycleState.STARTING_PREP.equals(state) || LifecycleState.STARTING.equals(state) ||
-                LifecycleState.STARTED.equals(state)) {
+        if (LifecycleState.STARTING_PREP.equals(state)
+                || LifecycleState.STARTING.equals(state)
+                || LifecycleState.STARTED.equals(state)) {
 
             if (log.isDebugEnabled()) {
                 Exception e = new LifecycleException();
@@ -383,8 +384,7 @@ public abstract class LifecycleBase implements Lifecycle {
     }
 
 
-    private synchronized void setStateInternal(LifecycleState state, Object data, boolean check)
-            throws LifecycleException {
+    private synchronized void setStateInternal(LifecycleState state, Object data, boolean check) throws LifecycleException {
 
         if (log.isDebugEnabled()) {
             log.debug(sm.getString("lifecycleBase.setState", this, state));

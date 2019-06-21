@@ -31,7 +31,7 @@ import org.apache.tomcat.util.res.StringManager;
  * {@link #getSubmittedCount()} method, to be used to properly handle the work queue.
  * If a RejectedExecutionHandler is not specified a default one will be configured
  * and that one will always throw a RejectedExecutionException
- *
+ * 扩展原生 ThreadPoolExecutor 重写 execute 方法
  */
 public class ThreadPoolExecutor extends java.util.concurrent.ThreadPoolExecutor {
     /**
@@ -45,6 +45,7 @@ public class ThreadPoolExecutor extends java.util.concurrent.ThreadPoolExecutor 
      * in the queue and tasks that have been handed to a worker thread but the
      * latter did not start executing the task yet.
      * This number is always greater or equal to {@link #getActiveCount()}.
+     * 已经提交到线程池但是还未完成的任务个数
      */
     private final AtomicInteger submittedCount = new AtomicInteger(0);
     private final AtomicLong lastContextStoppedTime = new AtomicLong(0L);
@@ -67,7 +68,7 @@ public class ThreadPoolExecutor extends java.util.concurrent.ThreadPoolExecutor 
     }
 
     public ThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue, ThreadFactory threadFactory,
-            RejectedExecutionHandler handler) {
+                              RejectedExecutionHandler handler) {
         super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, threadFactory, handler);
         prestartAllCoreThreads();
     }
@@ -112,8 +113,8 @@ public class ThreadPoolExecutor extends java.util.concurrent.ThreadPoolExecutor 
                     // OK, it's really time to dispose of this thread
 
                     final String msg = sm.getString(
-                                    "threadPoolExecutor.threadStoppedToAvoidPotentialLeak",
-                                    Thread.currentThread().getName());
+                            "threadPoolExecutor.threadStoppedToAvoidPotentialLeak",
+                            Thread.currentThread().getName());
 
                     throw new StopPooledThreadException(msg);
                 }
@@ -123,7 +124,7 @@ public class ThreadPoolExecutor extends java.util.concurrent.ThreadPoolExecutor 
 
     protected boolean currentThreadShouldBeStopped() {
         if (threadRenewalDelay >= 0
-            && Thread.currentThread() instanceof TaskThread) {
+                && Thread.currentThread() instanceof TaskThread) {
             TaskThread currentTaskThread = (TaskThread) Thread.currentThread();
             if (currentTaskThread.getCreationTime() <
                     this.lastContextStoppedTime.longValue()) {
@@ -142,7 +143,7 @@ public class ThreadPoolExecutor extends java.util.concurrent.ThreadPoolExecutor 
      */
     @Override
     public void execute(Runnable command) {
-        execute(command,0,TimeUnit.MILLISECONDS);
+        execute(command, 0, TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -156,21 +157,24 @@ public class ThreadPoolExecutor extends java.util.concurrent.ThreadPoolExecutor 
      *
      * @param command the runnable task
      * @param timeout A timeout for the completion of the task
-     * @param unit The timeout time unit
+     * @param unit    The timeout time unit
      * @throws RejectedExecutionException if this task cannot be
-     * accepted for execution - the queue is full
-     * @throws NullPointerException if command or unit is null
+     *                                    accepted for execution - the queue is full
+     * @throws NullPointerException       if command or unit is null
      */
     public void execute(Runnable command, long timeout, TimeUnit unit) {
         submittedCount.incrementAndGet();
         try {
             super.execute(command);
         } catch (RejectedExecutionException rx) {
+            // 如果总线程数达到 maxmumPoolSize，Java 原生线程池执行拒绝策略
             if (super.getQueue() instanceof TaskQueue) {
-                final TaskQueue queue = (TaskQueue)super.getQueue();
+                final TaskQueue queue = (TaskQueue) super.getQueue();
                 try {
+                    // 继续尝试把任务放到任务队列去
                     if (!queue.force(command, timeout, unit)) {
                         submittedCount.decrementAndGet();
+                        // 如果缓冲队列也满了，插入失败，执行拒绝队列
                         throw new RejectedExecutionException(sm.getString("threadPoolExecutor.queueFull"));
                     }
                 } catch (InterruptedException x) {
@@ -217,7 +221,7 @@ public class ThreadPoolExecutor extends java.util.concurrent.ThreadPoolExecutor 
     private static class RejectHandler implements RejectedExecutionHandler {
         @Override
         public void rejectedExecution(Runnable r,
-                java.util.concurrent.ThreadPoolExecutor executor) {
+                                      java.util.concurrent.ThreadPoolExecutor executor) {
             throw new RejectedExecutionException();
         }
 

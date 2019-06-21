@@ -22,6 +22,13 @@ import org.apache.tomcat.jni.Error;
 import org.apache.tomcat.util.ExceptionUtils;
 import org.apache.tomcat.util.res.StringManager;
 
+/**
+ * 跑在一个单独的线程里 死循环调用 accept 方法来接受新连接
+ * 一旦有新连接请求进来 accept 方法返回一个 Channel 对象，
+ * 接着把 Channel 对象交给 Poller 去处理
+ * {@link org.apache.tomcat.util.net.NioEndpoint.Poller}
+ * @param <U>
+ */
 public class Acceptor<U> implements Runnable {
 
     private static final Log log = LogFactory.getLog(Acceptor.class);
@@ -61,6 +68,7 @@ public class Acceptor<U> implements Runnable {
         int errorDelay = 0;
 
         // Loop until we receive a shutdown command
+        // 死循环直到接收到 shutdown 命令
         while (endpoint.isRunning()) {
 
             // Loop if endpoint is paused
@@ -80,6 +88,7 @@ public class Acceptor<U> implements Runnable {
 
             try {
                 //if we have reached max connections, wait
+                // 调用 LimitLatch 获得接受新连接许可，控制最大连接数，线程可能被阻塞
                 endpoint.countUpOrAwaitConnection();
 
                 // Endpoint might have been paused while waiting for latch
@@ -92,6 +101,7 @@ public class Acceptor<U> implements Runnable {
                 try {
                     // Accept the next incoming connection from the server
                     // socket
+                    // 返回一个 Channel 对象
                     socket = endpoint.serverSocketAccept();
                 } catch (Exception ioe) {
                     // We didn't get a socket
@@ -112,6 +122,7 @@ public class Acceptor<U> implements Runnable {
                 if (endpoint.isRunning() && !endpoint.isPaused()) {
                     // setSocketOptions() will hand the socket off to
                     // an appropriate processor if successful
+                    // 处理连接
                     if (!endpoint.setSocketOptions(socket)) {
                         endpoint.closeSocket(socket);
                     }

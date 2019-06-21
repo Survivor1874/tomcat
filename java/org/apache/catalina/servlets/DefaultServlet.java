@@ -287,27 +287,32 @@ public class DefaultServlet extends HttpServlet {
     @Override
     public void init() throws ServletException {
 
-        if (getServletConfig().getInitParameter("debug") != null)
+        if (getServletConfig().getInitParameter("debug") != null) {
             debug = Integer.parseInt(getServletConfig().getInitParameter("debug"));
+        }
 
-        if (getServletConfig().getInitParameter("input") != null)
+        if (getServletConfig().getInitParameter("input") != null) {
             input = Integer.parseInt(getServletConfig().getInitParameter("input"));
+        }
 
-        if (getServletConfig().getInitParameter("output") != null)
+        if (getServletConfig().getInitParameter("output") != null) {
             output = Integer.parseInt(getServletConfig().getInitParameter("output"));
+        }
 
         listings = Boolean.parseBoolean(getServletConfig().getInitParameter("listings"));
 
-        if (getServletConfig().getInitParameter("readonly") != null)
+        if (getServletConfig().getInitParameter("readonly") != null) {
             readOnly = Boolean.parseBoolean(getServletConfig().getInitParameter("readonly"));
+        }
 
         compressionFormats = parseCompressionFormats(
                 getServletConfig().getInitParameter("precompressed"),
                 getServletConfig().getInitParameter("gzip"));
 
-        if (getServletConfig().getInitParameter("sendfileSize") != null)
+        if (getServletConfig().getInitParameter("sendfileSize") != null) {
             sendfileSize =
                 Integer.parseInt(getServletConfig().getInitParameter("sendfileSize")) * 1024;
+        }
 
         fileEncoding = getServletConfig().getInitParameter("fileEncoding");
         if (fileEncoding == null) {
@@ -321,23 +326,27 @@ public class DefaultServlet extends HttpServlet {
             }
         }
 
-        if (getServletConfig().getInitParameter("useBomIfPresent") != null)
+        if (getServletConfig().getInitParameter("useBomIfPresent") != null) {
             useBomIfPresent = Boolean.parseBoolean(
                     getServletConfig().getInitParameter("useBomIfPresent"));
+        }
 
         globalXsltFile = getServletConfig().getInitParameter("globalXsltFile");
         contextXsltFile = getServletConfig().getInitParameter("contextXsltFile");
         localXsltFile = getServletConfig().getInitParameter("localXsltFile");
         readmeFile = getServletConfig().getInitParameter("readmeFile");
 
-        if (getServletConfig().getInitParameter("useAcceptRanges") != null)
+        if (getServletConfig().getInitParameter("useAcceptRanges") != null) {
             useAcceptRanges = Boolean.parseBoolean(getServletConfig().getInitParameter("useAcceptRanges"));
+        }
 
         // Sanity check on the specified buffer sizes
-        if (input < 256)
+        if (input < 256) {
             input = 256;
-        if (output < 256)
+        }
+        if (output < 256) {
             output = 256;
+        }
 
         if (debug > 0) {
             log("DefaultServlet.init:  input buffer size=" + input +

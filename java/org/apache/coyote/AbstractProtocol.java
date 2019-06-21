@@ -761,6 +761,7 @@ public abstract class AbstractProtocol<S> implements ProtocolHandler,
                 return SocketState.CLOSED;
             }
 
+            // socket NioChannel
             S socket = wrapper.getSocket();
 
             Processor processor = connections.get(socket);
@@ -773,8 +774,8 @@ public abstract class AbstractProtocol<S> implements ProtocolHandler,
             // dispatched. Because of delays in the dispatch process, the
             // timeout may no longer be required. Check here and avoid
             // unnecessary processing.
-            if (SocketEvent.TIMEOUT == status && (processor == null ||
-                    !processor.isAsync() || !processor.checkAsyncTimeoutGeneration())) {
+            if (SocketEvent.TIMEOUT == status
+                    && (processor == null || !processor.isAsync() || !processor.checkAsyncTimeoutGeneration())) {
                 // This is effectively a NO-OP
                 return SocketState.OPEN;
             }

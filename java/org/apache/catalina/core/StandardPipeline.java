@@ -259,8 +259,9 @@ public class StandardPipeline extends LifecycleBase implements Pipeline {
 
         // Change components if necessary
         Valve oldBasic = this.basic;
-        if (oldBasic == valve)
+        if (oldBasic == valve) {
             return;
+        }
 
         // Stop the old component if necessary
         if (oldBasic != null) {
@@ -281,8 +282,9 @@ public class StandardPipeline extends LifecycleBase implements Pipeline {
         }
 
         // Start the new component if necessary
-        if (valve == null)
+        if (valve == null) {
             return;
+        }
         if (valve instanceof Contained) {
             ((Contained) valve).setContainer(this.container);
         }

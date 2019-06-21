@@ -683,8 +683,7 @@ public abstract class ContainerBase extends LifecycleMBeanBase
     @Override
     public void addChild(Container child) {
         if (Globals.IS_SECURITY_ENABLED) {
-            PrivilegedAction<Void> dp =
-                new PrivilegedAddChild(child);
+            PrivilegedAction<Void> dp = new PrivilegedAddChild(child);
             AccessController.doPrivileged(dp);
         } else {
             addChildInternal(child);
@@ -693,12 +692,13 @@ public abstract class ContainerBase extends LifecycleMBeanBase
 
     private void addChildInternal(Container child) {
 
-        if( log.isDebugEnabled() )
+        if( log.isDebugEnabled() ) {
             log.debug("Add child " + child + " " + this);
+        }
         synchronized(children) {
-            if (children.get(child.getName()) != null)
-                throw new IllegalArgumentException(
-                        sm.getString("containerBase.child.notUnique", child.getName()));
+            if (children.get(child.getName()) != null) {
+                throw new IllegalArgumentException(sm.getString("containerBase.child.notUnique", child.getName()));
+            }
             child.setParent(this);  // May throw IAE
             children.put(child.getName(), child);
         }
@@ -707,9 +707,9 @@ public abstract class ContainerBase extends LifecycleMBeanBase
         // Don't do this inside sync block - start can be a slow process and
         // locking the children object can cause problems elsewhere
         try {
-            if ((getState().isAvailable() ||
-                    LifecycleState.STARTING_PREP.equals(getState())) &&
-                    startChildren) {
+            if ((getState().isAvailable()
+                    || LifecycleState.STARTING_PREP.equals(getState()))
+                    && startChildren) {
                 child.start();
             }
         } catch (LifecycleException e) {

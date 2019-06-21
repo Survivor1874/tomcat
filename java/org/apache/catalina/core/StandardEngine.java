@@ -68,7 +68,7 @@ public class StandardEngine extends ContainerBase implements Engine {
         /* Set the jmvRoute using the system property jvmRoute */
         try {
             setJvmRoute(System.getProperty("jvmRoute"));
-        } catch(Exception ex) {
+        } catch (Exception ex) {
             log.warn(sm.getString("standardEngine.jvmRouteFail"));
         }
         // By default, the engine will hold the reloading thread
@@ -102,8 +102,7 @@ public class StandardEngine extends ContainerBase implements Engine {
      * Default access log to use for request/response pairs where we can't ID
      * the intended host and context.
      */
-    private final AtomicReference<AccessLog> defaultAccessLog =
-        new AtomicReference<>();
+    private final AtomicReference<AccessLog> defaultAccessLog = new AtomicReference<>();
 
     // ------------------------------------------------------------- Properties
 
@@ -153,7 +152,7 @@ public class StandardEngine extends ContainerBase implements Engine {
             service.getMapper().setDefaultHostName(host);
         }
         support.firePropertyChange("defaultHost", oldDefaultHost,
-                                   this.defaultHost);
+                this.defaultHost);
 
     }
 
@@ -211,9 +210,9 @@ public class StandardEngine extends ContainerBase implements Engine {
     @Override
     public void addChild(Container child) {
 
-        if (!(child instanceof Host))
-            throw new IllegalArgumentException
-                (sm.getString("standardEngine.notHost"));
+        if (!(child instanceof Host)) {
+            throw new IllegalArgumentException(sm.getString("standardEngine.notHost"));
+        }
         super.addChild(child);
 
     }
@@ -228,8 +227,7 @@ public class StandardEngine extends ContainerBase implements Engine {
     @Override
     public void setParent(Container container) {
 
-        throw new IllegalArgumentException
-            (sm.getString("standardEngine.notParent"));
+        throw new IllegalArgumentException(sm.getString("standardEngine.notParent"));
 
     }
 
@@ -247,8 +245,8 @@ public class StandardEngine extends ContainerBase implements Engine {
      * Start this component and implement the requirements
      * of {@link org.apache.catalina.util.LifecycleBase#startInternal()}.
      *
-     * @exception LifecycleException if this component detects a fatal error
-     *  that prevents this component from being used
+     * @throws LifecycleException if this component detects a fatal error
+     *                            that prevents this component from being used
      */
     @Override
     protected synchronized void startInternal() throws LifecycleException {
@@ -271,7 +269,7 @@ public class StandardEngine extends ContainerBase implements Engine {
      */
     @Override
     public void logAccess(Request request, Response response, long time,
-            boolean useDefault) {
+                          boolean useDefault) {
 
         boolean logged = false;
 
@@ -336,8 +334,9 @@ public class StandardEngine extends ContainerBase implements Engine {
      */
     @Override
     public ClassLoader getParentClassLoader() {
-        if (parentClassLoader != null)
+        if (parentClassLoader != null) {
             return parentClassLoader;
+        }
         if (service != null) {
             return service.getParentClassLoader();
         }
@@ -413,9 +412,7 @@ public class StandardEngine extends ContainerBase implements Engine {
         }
     }
 
-    protected static final class AccessLogListener
-            implements PropertyChangeListener, LifecycleListener,
-            ContainerListener {
+    protected static final class AccessLogListener implements PropertyChangeListener, LifecycleListener, ContainerListener {
 
         private final StandardEngine engine;
         private final Host host;
@@ -423,7 +420,7 @@ public class StandardEngine extends ContainerBase implements Engine {
         private volatile boolean disabled = false;
 
         public AccessLogListener(StandardEngine engine, Host host,
-                Context context) {
+                                 Context context) {
             this.engine = engine;
             this.host = host;
             this.context = context;
@@ -454,7 +451,9 @@ public class StandardEngine extends ContainerBase implements Engine {
 
         @Override
         public void lifecycleEvent(LifecycleEvent event) {
-            if (disabled) return;
+            if (disabled) {
+                return;
+            }
 
             String type = event.getType();
             if (Lifecycle.AFTER_START_EVENT.equals(type) ||
@@ -470,7 +469,9 @@ public class StandardEngine extends ContainerBase implements Engine {
 
         @Override
         public void propertyChange(PropertyChangeEvent evt) {
-            if (disabled) return;
+            if (disabled) {
+                return;
+            }
             if ("defaultHost".equals(evt.getPropertyName())) {
                 // Force re-calculation and disable listener since it won't
                 // be re-used
@@ -482,7 +483,9 @@ public class StandardEngine extends ContainerBase implements Engine {
         @Override
         public void containerEvent(ContainerEvent event) {
             // Only useful for hosts
-            if (disabled) return;
+            if (disabled) {
+                return;
+            }
             if (Container.ADD_CHILD_EVENT.equals(event.getType())) {
                 Context context = (Context) event.getData();
                 if ("".equals(context.getPath())) {

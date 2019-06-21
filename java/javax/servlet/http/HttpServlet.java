@@ -305,8 +305,7 @@ public abstract class HttpServlet extends GenericServlet {
      * @see javax.servlet.ServletOutputStream
      * @see javax.servlet.ServletResponse#setContentType
      */
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp)
-        throws ServletException, IOException {
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
         String protocol = req.getProtocol();
         String msg = lStrings.getString("http.method_post_not_supported");
